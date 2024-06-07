@@ -11,8 +11,8 @@ use protocol::dnsquestion::DnsQuestion;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     //Perform an A query for www.google.com
-    let qname = "google.com";
-    let qtype = QueryType::A;
+    let qname = "meetakash.vercel.app";
+    let qtype = QueryType::SOA;
 
     //Using google's public DNS Server
     let server = ("8.8.8.8" , 53);

@@ -1,5 +1,7 @@
-# DNS_Server-Rust
-Building a DNS Server from Scratch in RUST! I have written notes about all the things I have learned in this Readme file, they are written in Hinglish for my referrence.
+# A DNS Server : Built with RUST!
+Building a DNS Server from Scratch in RUST!(yes I consider this language to be the language of the cool kids and yes I struggle to write a simple function in it and yes I want to earn money without having to do full stack). 
+
+I have written notes about all the things I have learned in this Readme file, they are written in Hinglish for my reference.
 
 
 ## Part 1 : Implementing the protocol
@@ -113,3 +115,112 @@ A {
     ttl: 80,
 }
 ```
+
+## Part 3 : Adding More Record types
+
+Currently we support only A type records. But ofcourse, there are n number of record types (most of them don't see any use) but some important ones are: 
+
+| ID  | Name  | Description                                              | Encoding                                         |
+| --- | ----- | -------------------------------------------------------- | ------------------------------------------------ |
+| 1   | A     | Alias - Mapping names to IP addresses                    | Preamble + Four bytes for IPv4 adress            |
+| 2   | NS    | Name Server - The DNS server address for a domain        | Preamble + Label Sequence                        |
+| 5   | CNAME | Canonical Name - Maps names to names                     | Preamble + Label Sequence                        |
+| 6   | SOA   | Start of Authority - Provides authoritative information  | Preamble + Label Sequence          |
+| 15  | MX    | Mail eXchange - The host of the mail server for a domain | Preamble + 2-bytes for priority + Label Sequence |
+| 16  | TXT   | Text - Arbitrary text data associated with a domain      | Preamble + Text data                              |
+| 28  | AAAA  | IPv6 address                                             | Preamble + Sixteen bytes for IPv6 address        |
+
+- We need to update our `QueryType` enum and change our utility functions. We also need to extend our `DnsRecord` for reading new record types and extend the functions foe reading and writing the new type of records.
+
+Now if we query for *Yahoo.com* with QueryType set as *MX*, we can see our new type of records:
+
+```
+cargo run
+   Compiling DNS-Server-Rust v0.1.0 (/home/akash/Desktop/rust/DNS-Server-Rust)
+
+warning: `DNS-Server-Rust` (bin "DNS-Server-Rust") generated 2 warnings
+    Finished dev [unoptimized + debuginfo] target(s) in 0.14s
+     Running `target/debug/DNS-Server-Rust`
+DnsHeader {
+    id: 6666,
+    recursion_desired: true,
+    truncated_message: false,
+    authoritative_answer: false,
+    opcode: 0,
+    response: true,
+    rescode: NOERROR,
+    checking_disabled: false,
+    authed_data: false,
+    z: false,
+    recursion_available: true,
+    questions: 1,
+    answers: 3,
+    authoritative_entries: 0,
+    resource_entries: 0,
+}
+DnsQuestion {
+    name: "yahoo.com",
+    qtype: MX,
+}
+MX {
+    domain: "yahoo.com",
+    priority: 1,
+    host: "mta5.am0.yahoodns.net",
+    ttl: 1673,
+}
+MX {
+    domain: "yahoo.com",
+    priority: 1,
+    host: "mta7.am0.yahoodns.net",
+    ttl: 1673,
+}
+MX {
+    domain: "yahoo.com",
+    priority: 1,
+    host: "mta6.am0.yahoodns.net",
+    ttl: 1673,
+}
+```
+
+And for *meetakash.vercel.app* with *SOA* query type:
+```
+cargo run
+   Compiling DNS-Server-Rust v0.1.0 (/home/akash/Desktop/rust/DNS-Server-Rust)
+
+warning: `DNS-Server-Rust` (bin "DNS-Server-Rust") generated 2 warnings
+    Finished dev [unoptimized + debuginfo] target(s) in 0.15s
+     Running `target/debug/DNS-Server-Rust`
+DnsHeader {
+    id: 6666,
+    recursion_desired: true,
+    truncated_message: false,
+    authoritative_answer: false,
+    opcode: 0,
+    response: true,
+    rescode: NOERROR,
+    checking_disabled: false,
+    authed_data: false,
+    z: false,
+    recursion_available: true,
+    questions: 1,
+    answers: 0,
+    authoritative_entries: 1,
+    resource_entries: 0,
+}
+DnsQuestion {
+    name: "meetakash.vercel.app",
+    qtype: SOA,
+}
+SOA {
+    domain: "vercel.app",
+    mname: "ns1.vercel-dns.com",
+    rname: "hostmaster.nsone.net",
+    serial: 1659373707,
+    refresh: 43200,
+    retry: 7200,
+    expire: 1209600,
+    minimum: 14400,
+    ttl: 1800,
+}
+```
+
