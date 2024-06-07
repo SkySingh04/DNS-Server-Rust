@@ -1,5 +1,11 @@
+use crate::Protocol::BytePacketBuffer;
+use crate::Protocol::QueryType::QueryType;
+use core::net::Ipv4Addr;
+
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 #[allow(dead_code)]
+
+
 pub enum DnsRecord {
     UNKNOWN {
         domain: String,
@@ -15,7 +21,7 @@ pub enum DnsRecord {
 }
 
 impl DnsRecord {
-    pub fn read(buffer: &mut BytePacketBuffer) -> Result<DnsRecord> {
+    pub fn read(buffer: &mut BytePacketBuffer::BytePacketBuffer) -> Result<DnsRecord, Box<dyn std::error::Error>> {
         let mut domain = String::new();
         buffer.read_qname(&mut domain)?;
 
@@ -34,7 +40,7 @@ impl DnsRecord {
                     ((raw_addr >> 8) & 0xFF) as u8,
                     ((raw_addr >> 0) & 0xFF) as u8,
                 );
-
+        
                 Ok(DnsRecord::A {
                     domain: domain,
                     addr: addr,
@@ -43,7 +49,7 @@ impl DnsRecord {
             }
             QueryType::UNKNOWN(_) => {
                 buffer.step(data_len as usize)?;
-
+        
                 Ok(DnsRecord::UNKNOWN {
                     domain: domain,
                     qtype: qtype_num,

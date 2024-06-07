@@ -1,3 +1,9 @@
+use crate::Protocol::BytePacketBuffer::BytePacketBuffer;
+use crate::Protocol::DNSHeader::DnsHeader;
+use crate::Protocol::DNSQuestion::DnsQuestion;
+use crate::Protocol::DNSRecord::DnsRecord;
+use crate::Protocol::QueryType::QueryType;
+
 #[derive(Clone, Debug)]
 pub struct DnsPacket {
     pub header: DnsHeader,
@@ -18,7 +24,7 @@ impl DnsPacket {
         }
     }
 
-    pub fn from_buffer(buffer: &mut BytePacketBuffer) -> Result<DnsPacket> {
+    pub fn from_buffer(buffer: &mut BytePacketBuffer) -> Result<DnsPacket, Box<dyn std::error::Error>> {
         let mut result = DnsPacket::new();
         result.header.read(buffer)?;
 

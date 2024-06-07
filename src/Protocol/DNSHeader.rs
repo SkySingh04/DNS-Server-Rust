@@ -1,3 +1,6 @@
+use crate::BytePacketBuffer;
+// use std::io::Error;
+use crate::Protocol::ResultCode::ResultCode;
 #[derive(Clone, Debug)]
 pub struct DnsHeader {
     pub id: u16, // 16 bits
@@ -45,7 +48,7 @@ impl DnsHeader {
         }
     }
 
-    pub fn read(&mut self, buffer: &mut BytePacketBuffer) -> Result<()> {
+    pub fn read(&mut self, buffer: &mut BytePacketBuffer::BytePacketBuffer) -> Result<(), Box<dyn std::error::Error>> {
         self.id = buffer.read_u16()?;
 
         let flags = buffer.read_u16()?;

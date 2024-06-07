@@ -1,3 +1,5 @@
+
+
 pub struct BytePacketBuffer {
     pub buf : [u8;512],
     pub pos : usize //32bits on 32bit systems
@@ -6,7 +8,7 @@ pub struct BytePacketBuffer {
 impl BytePacketBuffer {
 
     //A fresh buffer for holding the packet contents
-    pub fn new() => BytePacketBuffer {
+    pub fn new() -> BytePacketBuffer {
         BytePacketBuffer {
             buf : [0;512],
             pos : 0 //for keeping track of where we are in the buffer
@@ -19,30 +21,30 @@ impl BytePacketBuffer {
     }
 
     //Step the buffer position forward a specific number of steps
-    fn step (&mut self , steps : usize) -> Result<()>{
+    pub fn step (&mut self , steps : usize) -> Result<(), Box<dyn std::error::Error>>{
         self.pos += steps;
         Ok(())
     }
 
     // change the buffer position
-    fn seek(&mut self, pos : usize) -> Result<()>{
+    fn seek(&mut self, pos : usize) -> Result<(), Box<dyn std::error::Error>>{
         self.pos = pos;
         Ok(())
     }
 
     //Read a single byte from the buffer and advance the position
-    fn read(&mut self) -> Result<u8>{
+    fn read(&mut self) -> Result<u8, Box<dyn std::error::Error>>{
         if self.pos >=512 {
             return Err("End of buffer".into());
         }
         let res = self.buf[self.pos];
         self.pos += 1;
-
+    
         Ok(res)
     }
 
     // Get a single byte , without changing the buffer position
-    fn get(&self) -> Result<u8>{
+    fn get(&self , pos : usize) -> Result<u8, Box<dyn std::error::Error>>{
         if self.pos >= 512 {
             return Err("End of buffer".into());
         }
@@ -50,7 +52,7 @@ impl BytePacketBuffer {
     }
 
     //Get a range of bytes from the buffer
-    fn get_range(&self, start : usize, len : usize) -> Result<&[u8]>{
+    fn get_range(&self, start : usize, len : usize) -> Result<&[u8], Box<dyn std::error::Error>>{
         if start + len >= 512 {
             return Err("End of buffer".into());
         }
@@ -58,13 +60,13 @@ impl BytePacketBuffer {
     }
 
     //Read two bytes and interpret as a u16 in network byte order. stepping 2 steps forward
-    fn read_u16(&mut self) -> Result<u16>{
+    pub fn read_u16(&mut self) -> Result<u16, Box<dyn std::error::Error>>{
         let res = u16::from(self.read()?) << 8 | u16::from(self.read()?);
         Ok(res)
     }
 
     //Read four bytes and interpret as a u32 in network byte order. stepping 4 steps forward
-    fn read_u32(&mut self) -> Result<u32>{
+    pub fn read_u32(&mut self) -> Result<u32, Box<dyn std::error::Error>>{
         let res = u32::from(self.read()?) << 24 
         | u32::from(self.read()?) << 16 
         | u32::from(self.read()?) << 8 
@@ -76,7 +78,7 @@ impl BytePacketBuffer {
     //Taking lables into consideration
     //Input : something like [3]www[6]google[3]com[0]
     //Outputs : www.google.com in outstr
-    fn read_qname (&mut self , outstr : &mut String) -> Result<()>{
+    pub fn read_qname (&mut self , outstr : &mut String) -> Result<(), Box<dyn std::error::Error>>{
         //to tackle the jumps in the domain name, we keep a separate buffer as well.
         //This allows us to move the shared positiom to a point past out current qname, while still being able to read the qname
 
@@ -126,7 +128,7 @@ impl BytePacketBuffer {
 
             //otherwise we are at the beginning of a normal label and appending it to the output string
             else{
-                pos+=1
+                pos+=1;
 
                 if len == 0 { //0 length label indicates the end of the qname
                     break;
