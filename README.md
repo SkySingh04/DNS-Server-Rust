@@ -38,3 +38,42 @@ A stub resolver is a DNS Client that doesn't feature any built-in support for re
 - We need to extend our [byte_packet_buffer.rs](src/protocol/byte_packet_buffer.rs) to add methods for writing bytes and for writing query names in labeled form. Additionally, we will be extending our Header, Record, Question and Packet structs.
 
 - Next we can implement a Stub Resolver using the *UDPSocket* included in rust, instead of having to read a packet file.
+
+The output of running the stub resolver was : 
+```
+cargo run
+warning: crate `DNS_Server_Rust` should have a snake case name
+  |
+  = help: convert the identifier to snake case: `dns_server_rust`
+  = note: `#[warn(non_snake_case)]` on by default
+
+warning: `DNS-Server-Rust` (bin "DNS-Server-Rust") generated 1 warning
+    Finished dev [unoptimized + debuginfo] target(s) in 0.00s
+     Running `target/debug/DNS-Server-Rust`
+DnsHeader {
+    id: 6666,
+    recursion_desired: true,
+    truncated_message: false,
+    authoritative_answer: false,
+    opcode: 0,
+    response: true,
+    rescode: NOERROR,
+    checking_disabled: false,
+    authed_data: false,
+    z: false,
+    recursion_available: true,
+    questions: 1,
+    answers: 1,
+    authoritative_entries: 0,
+    resource_entries: 0,
+}
+DnsQuestion {
+    name: "google.com",
+    qtype: A,
+}
+A {
+    domain: "google.com",
+    addr: 172.217.167.142,
+    ttl: 80,
+}
+```
