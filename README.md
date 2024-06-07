@@ -31,6 +31,42 @@ Bas phir, we can put together all of this now in our [dnspacket.rs](src/protocol
 
 To test it out, run the [main.rs](src/protocol/main.rs) file with our `response_packet.txt` 
 
+The output will be : 
+```
+cargo run
+   Compiling DNS-Server-Rust v0.1.0 (/home/akash/Desktop/rust/DNS-Server-Rust)
+
+warning: `DNS-Server-Rust` (bin "DNS-Server-Rust") generated 8 warnings
+    Finished dev [unoptimized + debuginfo] target(s) in 0.17s
+     Running `target/debug/DNS-Server-Rust`
+DnsHeader {
+    id: 16488,
+    recursion_desired: true,
+    truncated_message: false,
+    authoritative_answer: false,
+    opcode: 0,
+    response: true,
+    rescode: NOERROR,
+    checking_disabled: false,
+    authed_data: false,
+    z: false,
+    recursion_available: true,
+    questions: 1,
+    answers: 1,
+    authoritative_entries: 0,
+    resource_entries: 0,
+}
+DnsQuestion {
+    name: "google.com",
+    qtype: A,
+}
+A {
+    domain: "google.com",
+    addr: 142.250.183.238,
+    ttl: 74,
+}
+```
+
 ## Part 2 : Building a stub resolver
 
 A stub resolver is a DNS Client that doesn't feature any built-in support for recursive lookup and that will only work with a DNS server that does.
