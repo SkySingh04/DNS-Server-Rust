@@ -1,6 +1,6 @@
-use crate::BytePacketBuffer;
+use crate::protocol::byte_packet_buffer::BytePacketBuffer;
 // use std::io::Error;
-use crate::Protocol::ResultCode::ResultCode;
+use crate::protocol::resultcode::ResultCode;
 #[derive(Clone, Debug)]
 pub struct DnsHeader {
     pub id: u16, // 16 bits
@@ -48,7 +48,7 @@ impl DnsHeader {
         }
     }
 
-    pub fn read(&mut self, buffer: &mut BytePacketBuffer::BytePacketBuffer) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn read(&mut self, buffer: &mut BytePacketBuffer) -> Result<(), Box<dyn std::error::Error>> {
         self.id = buffer.read_u16()?;
 
         let flags = buffer.read_u16()?;
@@ -70,6 +70,32 @@ impl DnsHeader {
         self.answers = buffer.read_u16()?;
         self.authoritative_entries = buffer.read_u16()?;
         self.resource_entries = buffer.read_u16()?;
+
+        Ok(())
+    }
+    pub fn write(&self, buffer: &mut BytePacketBuffer) -> Result<(),Box<dyn std::error::Error>> {
+        buffer.write_u16(self.id)?;
+
+        buffer.write_u8(
+            (self.recursion_desired as u8)
+                | ((self.truncated_message as u8) << 1)
+                | ((self.authoritative_answer as u8) << 2)
+                | (self.opcode << 3)
+                | ((self.response as u8) << 7) as u8,
+        )?;
+
+        buffer.write_u8(
+            (self.rescode as u8)
+                | ((self.checking_disabled as u8) << 4)
+                | ((self.authed_data as u8) << 5)
+                | ((self.z as u8) << 6)
+                | ((self.recursion_available as u8) << 7),
+        )?;
+
+        buffer.write_u16(self.questions)?;
+        buffer.write_u16(self.answers)?;
+        buffer.write_u16(self.authoritative_entries)?;
+        buffer.write_u16(self.resource_entries)?;
 
         Ok(())
     }

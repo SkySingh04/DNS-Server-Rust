@@ -16,7 +16,7 @@ impl BytePacketBuffer {
     }
 
     //Current position within buffer
-    fn pos(&self) -> usize{
+    pub fn pos(&self) -> usize{
         self.pos
     }
 
@@ -33,7 +33,7 @@ impl BytePacketBuffer {
     }
 
     //Read a single byte from the buffer and advance the position
-    fn read(&mut self) -> Result<u8, Box<dyn std::error::Error>>{
+    pub fn read(&mut self) -> Result<u8, Box<dyn std::error::Error>>{
         if self.pos >=512 {
             return Err("End of buffer".into());
         }
@@ -44,7 +44,7 @@ impl BytePacketBuffer {
     }
 
     // Get a single byte , without changing the buffer position
-    fn get(&self , pos : usize) -> Result<u8, Box<dyn std::error::Error>>{
+    pub fn get(&self , pos : usize) -> Result<u8, Box<dyn std::error::Error>>{
         if self.pos >= 512 {
             return Err("End of buffer".into());
         }
@@ -52,7 +52,7 @@ impl BytePacketBuffer {
     }
 
     //Get a range of bytes from the buffer
-    fn get_range(&self, start : usize, len : usize) -> Result<&[u8], Box<dyn std::error::Error>>{
+    pub fn get_range(&self, start : usize, len : usize) -> Result<&[u8], Box<dyn std::error::Error>>{
         if start + len >= 512 {
             return Err("End of buffer".into());
         }
@@ -150,6 +150,54 @@ impl BytePacketBuffer {
         if !jumped {
             self.seek(pos)?;
         }
+        Ok(())
+    }
+    
+    //Write a single byte to the buffer and advance the position
+    pub fn write(&mut self, val : u8) -> Result<(), Box<dyn std::error::Error>>{
+        if self.pos >= 512 {
+            return Err("End of buffer".into());
+        }
+        self.buf[self.pos] = val;
+        self.pos += 1;
+        Ok(())
+    }
+
+    //Write a u8 to the buffer and advance the position by 1
+    pub fn write_u8(&mut self, val : u8) -> Result<(), Box<dyn std::error::Error>>{
+        self.write(val)?;
+        Ok(())
+    }
+
+    //Write a u16 to the buffer in network byte order and advance the position by 2
+    pub fn write_u16(&mut self, val : u16) -> Result<(), Box<dyn std::error::Error>>{
+        self.write(((val >> 8) & 0xFF) as u8)?;
+        self.write((val & 0xFF) as u8)?;
+        Ok(())
+    }
+
+
+    //Write a u32 to the buffer in network byte order and advance the position by 4
+    pub fn write_u32(&mut self, val : u32) -> Result<(), Box<dyn std::error::Error>>{
+        self.write(((val >> 24) & 0xFF) as u8)?;
+        self.write(((val >> 16) & 0xFF) as u8)?;
+        self.write(((val >> 8) & 0xFF) as u8)?;
+        self.write((val & 0xFF) as u8)?;
+        Ok(())
+    }
+
+    //Write a qname to the buffer
+    pub fn write_qname(&mut self , qname : &str) -> Result<(), Box<dyn std::error::Error>>{
+        for part in qname.split(".") {
+            if part.len() > 63 {
+                return Err("Label too long".into());
+            }
+            self.write(part.len() as u8)?;
+            for c in part.chars() {
+                self.write(c as u8)?;
+            }
+        }
+        self.write(0)?;
         Ok(())
     }
 

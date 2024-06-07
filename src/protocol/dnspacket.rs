@@ -1,8 +1,8 @@
-use crate::Protocol::BytePacketBuffer::BytePacketBuffer;
-use crate::Protocol::DNSHeader::DnsHeader;
-use crate::Protocol::DNSQuestion::DnsQuestion;
-use crate::Protocol::DNSRecord::DnsRecord;
-use crate::Protocol::QueryType::QueryType;
+use crate::protocol::byte_packet_buffer::BytePacketBuffer;
+use crate::protocol::dnsheader::DnsHeader;
+use crate::protocol::dnsquestion::DnsQuestion;
+use crate::protocol::dnsrecord::DnsRecord;
+use crate::protocol::querytype::QueryType;
 
 #[derive(Clone, Debug)]
 pub struct DnsPacket {
@@ -48,5 +48,28 @@ impl DnsPacket {
         }
 
         Ok(result)
+    }
+    pub fn write(&mut self, buffer: &mut BytePacketBuffer) -> Result<() ,Box<dyn std::error::Error>> {
+        self.header.questions = self.questions.len() as u16;
+        self.header.answers = self.answers.len() as u16;
+        self.header.authoritative_entries = self.authorities.len() as u16;
+        self.header.resource_entries = self.resources.len() as u16;
+
+        self.header.write(buffer)?;
+
+        for question in &self.questions {
+            question.write(buffer)?;
+        }
+        for rec in &self.answers {
+            rec.write(buffer)?;
+        }
+        for rec in &self.authorities {
+            rec.write(buffer)?;
+        }
+        for rec in &self.resources {
+            rec.write(buffer)?;
+        }
+
+        Ok(())
     }
 }

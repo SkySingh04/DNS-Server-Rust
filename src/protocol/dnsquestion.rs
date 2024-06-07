@@ -1,5 +1,5 @@
-use crate::BytePacketBuffer::BytePacketBuffer;
-use crate::Protocol::QueryType::QueryType;
+use crate::protocol::byte_packet_buffer::BytePacketBuffer;
+use crate::protocol::querytype::QueryType;
 use std::error::Error;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -21,6 +21,15 @@ impl DnsQuestion {
         self.qtype = QueryType::from_num(buffer.read_u16()?); // qtype
         let _ = buffer.read_u16()?; // class
     
+        Ok(())
+    }
+    pub fn write(&self, buffer: &mut BytePacketBuffer) -> Result<() , Box<dyn Error>> {
+        buffer.write_qname(&self.name)?;
+
+        let typenum = self.qtype.to_num();
+        buffer.write_u16(typenum)?;
+        buffer.write_u16(1)?;
+
         Ok(())
     }
 }

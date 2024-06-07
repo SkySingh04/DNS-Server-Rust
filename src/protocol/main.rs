@@ -1,7 +1,7 @@
 use std::error::Error;
 use crate::File;
-use crate::BytePacketBuffer::BytePacketBuffer;
-use crate::Protocol::DNSPacket::DnsPacket;
+use crate::protocol::byte_packet_buffer::BytePacketBuffer;
+use crate::protocol::dnspacket::DnsPacket;
 use std::io::Read;
 
 fn main() -> Result<(), Box<dyn Error>> {
