@@ -224,3 +224,54 @@ SOA {
 }
 ```
 
+## Part 4 : Ab banega Actual DNS Server
+
+There are essentially two types of DNS servers, A DNS server can do both in theory but usually they are mutually exclusive.
+
+- *Authoritative Server* : A DNS Server hosting one or more "zones".ex: The authoritative servers for the zone google.com are ns1.google.com, ns2.google.com, ns3.google.com and ns4.google.com.
+
+- *Caching Server* : A DNS server that serves DNS lookups by first checking its chache to see if it already knows of rhe record being requested, and if not performs a recursive lookup.
+
+First we can implement a server that simply forwards queries to another caching server, i.e. a "DNS proxy server". We will refactor our [main.rs](src/main.rs) by moving our lookup code into a separate function. Along with that, we will write our server code to handle requests.
+
+Now we can start our server in one terminal and then use `dig` to perform lookup in a second terminal.
+
+```
+dig @127.0.0.1 -p 2053 meetakash.vercel.app
+
+; <<>> DiG 9.18.18-0ubuntu0.22.04.2-Ubuntu <<>> @127.0.0.1 -p 2053 meetakash.vercel.app
+; (1 server found)
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 37880
+;; flags: qr rd ra; QUERY: 1, ANSWER: 2, AUTHORITY: 0, ADDITIONAL: 0
+
+;; QUESTION SECTION:
+;meetakash.vercel.app.          IN      A
+
+;; ANSWER SECTION:
+meetakash.vercel.app.   1800    IN      A       76.76.21.93
+meetakash.vercel.app.   1800    IN      A       76.76.21.164
+
+;; Query time: 148 msec
+;; SERVER: 127.0.0.1#2053(127.0.0.1) (UDP)
+;; WHEN: Sat Jun 08 10:26:37 IST 2024
+;; MSG SIZE  rcvd: 110
+```
+
+And in our server terminal we can see : 
+```
+cargo run
+   Compiling DNS-Server-Rust v0.1.0 (/home/akash/Desktop/rust/DNS-Server-Rust)
+warning: `DNS-Server-Rust` (bin "DNS-Server-Rust") generated 1 warning
+    Finished dev [unoptimized + debuginfo] target(s) in 0.15s
+     Running `target/debug/DNS-Server-Rust`
+Server started successfully on port 2053
+Received query: DnsQuestion { name: "google.com", qtype: A }
+Answer: A { domain: "google.com", addr: 142.250.196.78, ttl: 245 }
+Received query: DnsQuestion { name: "meetakash.vercel.app", qtype: A }
+Answer: A { domain: "meetakash.vercel.app", addr: 76.76.21.93, ttl: 1800 }
+Answer: A { domain: "meetakash.vercel.app", addr: 76.76.21.164, ttl: 1800 }
+```
+
+

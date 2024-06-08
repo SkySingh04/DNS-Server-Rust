@@ -5,7 +5,8 @@ use crate::protocol::byte_packet_buffer::BytePacketBuffer;
 use crate::protocol::dnspacket::DnsPacket;
 use std::io::Read;
 
-fn main() -> Result<(), Box<dyn Error>> {
+#[allow(dead_code)]
+fn test_with_response_packet() -> Result<(), Box<dyn Error>> {
     let mut f = File::open("response_packet.txt")?;
     let mut buffer = BytePacketBuffer::new();
     f.read(&mut buffer.buf)?;
