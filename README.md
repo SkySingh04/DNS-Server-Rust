@@ -274,4 +274,22 @@ Answer: A { domain: "meetakash.vercel.app", addr: 76.76.21.93, ttl: 1800 }
 Answer: A { domain: "meetakash.vercel.app", addr: 76.76.21.164, ttl: 1800 }
 ```
 
+Lessgooo, we have a DNS server that is able to respond to queries with several different record types!!
 
+## Part 5 : Implementing a recursive resolver
+
+Our server is very nice as it is now, but we are reliant on another server to actually perform the lookup.
+
+The question is first issued to one of the Internet's 13 root servers. Any resolver will need to know of these 13 servers before hand. A file containing all of them, in bind format, is available on the internet and called [named.root](https://www.internic.net/domain/named.root). These servers all contain the same information, and to get started we can pick one of them at random.
+
+The flow is simple:
+
+- The initial query is sent to the root server, which don't know the full `www.google.com` but they do know about `com`, and the reply will tell us where to go next.(This step is usually cached).
+
+- Next again, we will get a list of shortlisted domains that will point us to the domain.
+
+- On this lookup, we will get the IP address of our website.
+
+In practice, a DNS server will maintain a cache, and most TLD's will be known since before. That means that most queries will only ever require two lookups by the server, and commonly one or zero.
+
+Now we can extend [dnspacket.rs](src/protocol/dnspacket.rs) for recursive lookups.
