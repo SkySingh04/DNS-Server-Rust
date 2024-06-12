@@ -292,4 +292,44 @@ The flow is simple:
 
 In practice, a DNS server will maintain a cache, and most TLD's will be known since before. That means that most queries will only ever require two lookups by the server, and commonly one or zero.
 
-Now we can extend [dnspacket.rs](src/protocol/dnspacket.rs) for recursive lookups.
+Now we can extend [dnspacket.rs](src/protocol/dnspacket.rs) for recursive lookups. Then, we can implement our recursive lookup and change our `handle_query` function to use our new recursive lookup!
+
+Great, now we can see the output as : 
+```
+dig @127.0.0.1 -p 2053 www.google.com
+
+; <<>> DiG 9.18.18-0ubuntu0.22.04.2-Ubuntu <<>> @127.0.0.1 -p 2053 www.google.com
+; (1 server found)
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 35891
+;; flags: qr rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 0, ADDITIONAL: 0
+
+;; QUESTION SECTION:
+;www.google.com.                        IN      A
+
+;; ANSWER SECTION:
+www.google.com.         300     IN      A       172.217.163.196
+
+;; Query time: 195 msec
+;; SERVER: 127.0.0.1#2053(127.0.0.1) (UDP)
+;; WHEN: Wed Jun 12 13:42:43 IST 2024
+;; MSG SIZE  rcvd: 62
+
+```
+
+And in our server window : 
+```
+ Finished dev [unoptimized + debuginfo] target(s) in 0.34s
+     Running `target/debug/DNS-Server-Rust`
+Server started successfully on port 2053
+Received query: DnsQuestion { name: "www.google.com", qtype: A }
+Attempting lookup of A www.google.com with ns 198.41.0.4
+Attempting lookup of A www.google.com with ns 192.41.162.30
+Attempting lookup of A www.google.com with ns 216.239.34.10
+Answer: A { domain: "www.google.com", addr: 172.217.163.196, ttl: 300 }
+```
+
+And that's it! That is our DNS server completed!
+
+## Part 6 : Deployment

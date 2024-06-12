@@ -5,6 +5,7 @@ use crate::protocol::dnsheader::DnsHeader;
 use crate::protocol::dnsquestion::DnsQuestion;
 use crate::protocol::dnsrecord::DnsRecord;
 use crate::protocol::querytype::QueryType;
+use crate::protocol::resultcode::ResultCode;
 
 #[derive(Clone, Debug)]
 pub struct DnsPacket {
@@ -133,7 +134,4 @@ impl DnsPacket {
             // Finally, pick the first valid entry
             .next()
     }
-
-
-
 }
