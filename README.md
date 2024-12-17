@@ -332,6 +332,12 @@ Answer: A { domain: "www.google.com", addr: 172.217.163.196, ttl: 300 }
 
 And that's it! That is our DNS server completed!
 
-#### Future Goals
-- Add support for TCP protocol
-- Configure deployment on AWs
+## Contributing
+
+Contributions are welcome! Please read the [CONTRIBUTING.md](CONTRIBUTING.md) file for more details on how to get involved.
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+
