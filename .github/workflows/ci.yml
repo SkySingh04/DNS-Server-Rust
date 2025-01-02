@@ -1,0 +1,37 @@
+name: Lint, Build, and Test
+
+on:
+    push:
+      branches:
+        - main
+        - staging
+    pull_request:
+      branches:
+        - main
+        - staging
+
+jobs:
+  lint-build-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        profile: minimal
+
+    - name: Install Clippy (Rust linter)
+      run: rustup component add clippy
+
+    - name: Run Linter
+      run: cargo clippy -- -D warnings
+
+    - name: Run Build
+      run: cargo build --release
+
+    - name: Run Tests
+      run: cargo test
