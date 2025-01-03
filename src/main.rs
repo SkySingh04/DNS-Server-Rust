@@ -94,13 +94,13 @@ fn handle_query(socket : &UdpSocket) -> Result<() , Box<dyn std::error::Error>> 
             }
         }
         else{
-            packet.header.rescode =  ResultCode::SERVFAIL;
+            packet.header.rescode =  ResultCode::ServFail;
         }
     }
     //We need to make sure that a question is actually present in the packet
     //If not , we'll set the response code to `FORMERR` and return an error
     else{
-        packet.header.rescode = ResultCode::FORMERR;
+        packet.header.rescode = ResultCode::FormErr;
     }
 
     //Now we can just encode our response and send it back to the client
@@ -133,13 +133,13 @@ pub fn recursive_lookup(qname : &str, qtype : QueryType) -> Result <DnsPacket , 
         let response = lookup(qname , qtype , server)?;
 
         //If there are entries in the answer section, we can return the packet
-        if !response.answers.is_empty() && response.header.rescode == ResultCode::NOERROR {
+        if !response.answers.is_empty() && response.header.rescode == ResultCode::NoError {
             return Ok(response);
         }
 
         // We might also get a `NXDOMAIN` reply, which is the authoritative name servers
         // way of telling us that the name doesn't exist.
-        if response.header.rescode == ResultCode::NXDOMAIN {
+        if response.header.rescode == ResultCode::NXDomain {
             return Ok(response);
         }
 
@@ -161,7 +161,7 @@ pub fn recursive_lookup(qname : &str, qtype : QueryType) -> Result <DnsPacket , 
     // Here we go down the rabbit hole by starting _another_ lookup sequence in the
     // midst of our current one. Hopefully, this will give us the IP of an appropriate
     // name server.
-    let recursive_response = recursive_lookup(&new_ns_name, QueryType::A)?;
+    let recursive_response = recursive_lookup(new_ns_name, QueryType::A)?;
 
     // Finally, we pick a random ip from the result, and restart the loop. If no such
     // record is available, we again return the last result we got.

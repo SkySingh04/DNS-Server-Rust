@@ -24,6 +24,12 @@ pub struct DnsHeader {
 }
 
 //ye implementation mat puchna , its a lot of bit manipulation circus
+impl Default for DnsHeader {
+    fn default() -> Self {
+        DnsHeader::new()
+    }
+}
+
 impl DnsHeader {
     pub fn new() -> DnsHeader {
         DnsHeader {
@@ -35,7 +41,7 @@ impl DnsHeader {
             opcode: 0,
             response: false,
 
-            rescode: ResultCode::NOERROR,
+            rescode: ResultCode::NoError,
             checking_disabled: false,
             authed_data: false,
             z: false,
@@ -81,7 +87,7 @@ impl DnsHeader {
                 | ((self.truncated_message as u8) << 1)
                 | ((self.authoritative_answer as u8) << 2)
                 | (self.opcode << 3)
-                | ((self.response as u8) << 7) as u8,
+                | ((self.response as u8) << 7),
         )?;
 
         buffer.write_u8(

@@ -5,7 +5,6 @@ use crate::protocol::dnsheader::DnsHeader;
 use crate::protocol::dnsquestion::DnsQuestion;
 use crate::protocol::dnsrecord::DnsRecord;
 use crate::protocol::querytype::QueryType;
-use crate::protocol::resultcode::ResultCode;
 
 #[derive(Clone, Debug)]
 pub struct DnsPacket {
@@ -14,6 +13,12 @@ pub struct DnsPacket {
     pub answers: Vec<DnsRecord>,
     pub authorities: Vec<DnsRecord>,
     pub resources: Vec<DnsRecord>,
+}
+
+impl Default for DnsPacket {
+    fn default() -> Self {
+        DnsPacket::new()
+    }
 }
 
 impl DnsPacket {
@@ -32,7 +37,7 @@ impl DnsPacket {
         result.header.read(buffer)?;
 
         for _ in 0..result.header.questions {
-            let mut question = DnsQuestion::new("".to_string(), QueryType::UNKNOWN(0));
+            let mut question = DnsQuestion::new("".to_string(), QueryType::Unknown(0));
             question.read(buffer)?;
             result.questions.push(question);
         }
@@ -119,7 +124,6 @@ impl DnsPacket {
                 _ => None,
             })
         })
-        .map(| addr | addr)
         //Finally pick the first valid entry
         .next()
     }

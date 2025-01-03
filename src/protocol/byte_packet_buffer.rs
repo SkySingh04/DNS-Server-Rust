@@ -3,6 +3,12 @@ pub struct BytePacketBuffer {
     pub pos: usize, // Current position in the buffer
 }
 
+impl Default for BytePacketBuffer {
+    fn default() -> Self {
+        BytePacketBuffer::new()
+    }
+}
+
 impl BytePacketBuffer {
     // Initialize a new buffer
     pub fn new() -> BytePacketBuffer {
