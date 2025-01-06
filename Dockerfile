@@ -19,4 +19,4 @@ WORKDIR /app
 
 COPY --from=builder /app/target/release/DNS-Server-Rust /usr/local/bin/
 
-CMD ["<binary-name>"]
+CMD ["DNS-Server-Rust"]
